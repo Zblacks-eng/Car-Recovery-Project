@@ -1,0 +1,30 @@
+-- Mobile Car Recovery Management System
+-- SQL Script for Database Creation
+
+-- 1. Database
+CREATE DATABASE CarRecoveryDB;
+GO
+
+USE CarRecoveryDB;
+GO
+
+-- 2.Vehicles Table
+CREATE TABLE Vehicles (
+    VehicleID INT PRIMARY KEY IDENTITY(1,1),
+    LicensePlate VARCHAR(10) NOT NULL UNIQUE,
+    OwnerName VARCHAR(100) NOT NULL,
+    VehicleModel VARCHAR(50),
+    IssueDescription TEXT,
+    RecoveryStatus VARCHAR(20) DEFAULT 'Pending',
+    ServiceDate DATETIME DEFAULT GETDATE()
+);
+
+-- 3. Insert Sample Data for Testing 
+-- Using modern cars for the team members
+INSERT INTO Vehicles (LicensePlate, OwnerName, VehicleModel, IssueDescription, RecoveryStatus)
+VALUES 
+('M4 BMW', 'Avisha Garusingha', 'BMW M4 Competition', 'Engine coolant leak on M1', 'Pending'),
+('ZJ09 JSS', 'Zion James-Simpson', 'Mercedes-AMG G63', 'Electronic system failure', 'In Progress'),
+('HN39 5NM', 'Hoang Phuong Nam', 'Porsche 911 GT3', 'Puncture - requires specialist tow', 'Pending'),
+('BL46 2LI', 'Brent Li', 'Audi RS6 Avant', 'Suspension damage from pothole', 'Completed'),
+('SL16 85L', 'Shreyesh Lawaju', 'Tesla Model S Plaid', 'Drive unit error - software lock', 'Pending');
