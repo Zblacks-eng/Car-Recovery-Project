@@ -1,0 +1,103 @@
+
+
+
+IF NOT EXISTS (SELECT * FROM sys.databases WHERE name = 'CarRecoveryDB')
+BEGIN
+    CREATE DATABASE CarRecoveryDB;
+END
+GO
+
+USE CarRecoveryDB;
+GO
+
+  TABLES IN CORRECT ORDER 
+IF OBJECT_ID('dbo.RecoveryJobs', 'U') IS NOT NULL DROP TABLE dbo.RecoveryJobs;
+IF OBJECT_ID('dbo.Vehicles', 'U') IS NOT NULL DROP TABLE dbo.Vehicles;
+IF OBJECT_ID('dbo.Owners', 'U') IS NOT NULL DROP TABLE dbo.Owners;
+IF OBJECT_ID('dbo.Technicians', 'U') IS NOT NULL DROP TABLE dbo.Technicians;
+
+-- 3. OWNERS TABLE
+
+CREATE TABLE Owners (
+    OwnerID INT PRIMARY KEY IDENTITY(1,1),
+    FullName NVARCHAR(100) NOT NULL,
+    ContactNumber NVARCHAR(15) NOT NULL,
+    Email NVARCHAR(100) UNIQUE,
+    CreatedAt DATETIME DEFAULT GETDATE()
+);
+
+-- 4. TECHNICIANS TABLE
+-- To track which team member is assigned to a specific recovery.
+CREATE TABLE Technicians (
+    TechID INT PRIMARY KEY IDENTITY(1,1),
+    TechName NVARCHAR(100) NOT NULL,
+    Expertise NVARCHAR(50), -- e.g., 'EV specialist', 'Heavy Towing'
+    IsAvailable BIT DEFAULT 1
+);
+
+-- 5. VEHICLES TABLE
+-- The core entity for the "Track" class in your C# code.
+CREATE TABLE Vehicles (
+    VehicleID INT PRIMARY KEY IDENTITY(1,1),
+    LicensePlate NVARCHAR(15) NOT NULL UNIQUE, -- Unique constraint for searches
+    Make NVARCHAR(50) NOT NULL,
+    Model NVARCHAR(50) NOT NULL,
+    Color NVARCHAR(20),
+    OwnerID INT NOT NULL,
+    CONSTRAINT FK_Vehicle_Owner FOREIGN KEY (OwnerID) REFERENCES Owners(OwnerID) 
+        ON DELETE CASCADE
+);
+
+-- 6. RECOVERY JOBS TABLE
+-- This links the Vehicle, Technician, and the specific Issue.
+CREATE TABLE RecoveryJobs (
+    JobID INT PRIMARY KEY IDENTITY(1,1),
+    VehicleID INT NOT NULL,
+    TechID INT NOT NULL,
+    IssueDescription NVARCHAR(MAX) NOT NULL,
+    LocationDescription NVARCHAR(255),
+    JobStatus NVARCHAR(20) DEFAULT 'Pending' 
+        CHECK (JobStatus IN ('Pending', 'Dispatched', 'In Progress', 'Completed', 'Cancelled')),
+    PriorityLevel INT DEFAULT 1, -- 1=Low, 5=Emergency
+    LogDate DATETIME DEFAULT GETDATE(),
+    
+    CONSTRAINT FK_Job_Vehicle FOREIGN KEY (VehicleID) REFERENCES Vehicles(VehicleID),
+    CONSTRAINT FK_Job_Tech FOREIGN KEY (TechID) REFERENCES Technicians(TechID)
+);
+
+-- 7. PERFORMANCE INDEXING (Critical for "Search Functionality" marks)
+-- These indexes allow the database to search thousands of records instantly.
+CREATE INDEX IX_Vehicles_LicensePlate ON Vehicles(LicensePlate);
+CREATE INDEX IX_RecoveryJobs_Status ON RecoveryJobs(JobStatus);
+
+-- 8. SEED DATA (Professional Testing Dataset)
+INSERT INTO Owners (FullName, ContactNumber, Email) VALUES 
+('Avisha Garusingha', '07712345678', 'avisha@mdx.ac.uk'),
+('Zion James-Simpson', '07787654321', 'zion@mdx.ac.uk'),
+('Hoang Phuong Nam', '07700112233', 'nam@mdx.ac.uk'),
+('Brent Li', '07744556677', 'brent@mdx.ac.uk'),
+('Shreyesh Lawaju', '07799887766', 'shreyesh@mdx.ac.uk');
+
+INSERT INTO Technicians (TechName, Expertise) VALUES 
+('Alex Recovery', 'Engine Diagnostics'),
+('Jordan Tow', 'Heavy Lifting'),
+('Sam Sparks', 'Electric Vehicles');
+
+INSERT INTO Vehicles (LicensePlate, Make, Model, OwnerID) VALUES 
+('M4-BMW-COMP', 'BMW', 'M4 Competition', 1),
+('G63-AMG', 'Mercedes', 'G63', 2),
+('GT3-911', 'Porsche', '911 GT3', 3),
+('RS6-AVANT', 'Audi', 'RS6', 4),
+('TESLA-PLAID', 'Tesla', 'Model S', 5);
+
+INSERT INTO RecoveryJobs (VehicleID, TechID, IssueDescription, JobStatus, PriorityLevel) VALUES 
+(1, 1, 'Coolant leak on M1 Northbound', 'Pending', 3),
+(2, 2, 'Suspension collapse', 'In Progress', 4),
+(5, 3, 'Battery depletion/Software lockout', 'Dispatched', 5);
+
+-- Final Select to verify setup
+SELECT j.JobID, v.LicensePlate, o.FullName AS Owner, t.TechName AS AssignedTech, j.JobStatus
+FROM RecoveryJobs j
+JOIN Vehicles v ON j.VehicleID = v.VehicleID
+JOIN Owners o ON v.OwnerID = o.OwnerID
+JOIN Technicians t ON j.TechID = t.TechID;
