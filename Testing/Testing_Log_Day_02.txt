@@ -1,0 +1,14 @@
+Testing_Log_Day_02.txt
+
+Summary: Day 2 involved functional testing of the second code push. I specifically focused on the Binary Search Tree (BST) logic used for vehicle record management.
+
+Test Execution & Results:
+1.Data Entry: Successfully executed the "Add" function. I verified that vehicle records (e.g., Tesla, Toyota) can be entered into the system without errors.
+2.BST Logic Verification: Confirmed that the sorting mechanism is functioning correctly in the background. Plate data is being accurately assigned to the left and right nodes of the tree.
+3.System Stability: Performed basic stress testing on input fields. The application remained stable with no "Null Reference" errors or unexpected crashes.
+
+Identified Gaps & Requirements:
+1.Search Functionality: Testing for data retrieval is currently pending, as the Search function has not yet been implemented in the UI.
+2.Data Persistence: The system currently clears all data upon exit. Integration with the SQL database is required to ensure test records are saved between sessions.
+
+Conclusion: The core "Add" functionality and the underlying BST sorting logic are performing as expected. Future testing will shift toward the "Search" and "Delete" modules once they are integrated into the build.

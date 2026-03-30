@@ -1,0 +1,10 @@
+Testing_Log_Day_01.txt
+
+Summary: The focus of Day 1 was the initial environment setup and a structural review of the project repository. The goal was to ensure the testing environment was correctly configured for future functional updates.
+
+Observations:
+1.Repository Review: Conducted a walkthrough of the first code push. The current codebase consists of the primary project architecture and class definitions.
+2.Structural Integrity: Verified that the folder structure (SourceCode, Documentation, Testing) is organized according to the project plan.
+3.Logic Status: No functional testing was performed during this session as the logic implementation is still in the "blueprint" stage.
+
+Conclusions:The project environment is stable and correctly initialized. I am ready to begin functional testing as soon as the first logic-based modules are pushed to the repository.
