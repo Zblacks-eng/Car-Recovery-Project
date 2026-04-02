@@ -17,5 +17,10 @@ namespace CST2550
             BreakdownTime = DateTime.Now;
             Status = "Pending";
         }
+
+        public override string ToString()
+        {
+            return $"Plate: {NumberPlate}, Model: {CarModel}, Time: {BreakdownTime}, Status: {Status}";
+        }
     }
 }
