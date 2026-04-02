@@ -16,7 +16,18 @@ namespace CST2550
 			// Try to add them to our custom tree
 			myTree.Add(car1);
 			myTree.Add(car2);
+
+			// Test search
+			var result = myTree.Search("ABC-123");
 			
+			if (result != null)
+			{
+				Console.WriteLine("Car found: " + result);
+			}
+			else
+			{
+				Console.WriteLine("Car not found");
+			}
 			Console.WriteLine("\nPress any key...");
 			Console.ReadKey();
 		}
