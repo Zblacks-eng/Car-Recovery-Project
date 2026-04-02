@@ -33,9 +33,11 @@ namespace CST2550
 			{
 				root.Right = InsertRecursive(root.Right, record);
 			}
-
-			return root;
-		}
+			else
+			{
+				//Duplicate plate, do nothing
+				return root;
+			}
 
 		// The public search we call from Program.cs
 		public RecoveryRecord Search(string plate)
