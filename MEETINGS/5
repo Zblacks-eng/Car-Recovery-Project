@@ -1,0 +1,22 @@
+This meeting is set for 6 April 2026. This is a crucial log because it represents the "Final Sprint Review." At this stage, the code is finished, and the team is focusing on the Demonstration Video and the Final Report formatting.
+
+Showing a meeting where you "Dry Run" the video and double-check the SQL script demonstrates the attention to detail needed for the top mark bracket (70%+).
+
+Daily Standup Meeting: 6 April 2026
+Project: Mobile Car Recovery Management System
+
+Sprint: 2 | Time: 11:00 – 11:30 AM
+
+Attendance: Avisha Garusingha, Zion James-Simpson, Hoang Nguyen, Brent Li, Shrayesh Lawaju.
+
+The meeting focused on the final preparation for the 10 April submission deadline. Avisha Garusingha (Team Leader) led a "dry run" review of the demonstration video script. She highlighted that per the marking scheme, the team must explain the source code implementation rather than just showing the UI. Avisha confirmed she will record the final 6-minute MP4 today, ensuring that the first 5 minutes cover all core functional requirements to maximise marks before the markers stop watching.
+
+Zion James-Simpson (Secretary) presented the near-final draft of the 7-page technical report. He performed a "References Audit" to ensure every in-text citation correctly matches the Harvard-style list at the end. Zion noted that the "Critical Reflection" section now includes the team's honest assessment of the Binary Search Tree’s limitations, such as potential skewing, which adds academic depth to the conclusion. He is now ready to convert the document into the final PDF format.
+
+Hoang Nguyen (Developer) confirmed that the SQL Database Code File has been uploaded to the repository. He demonstrated that the script successfully populates the database with sample car recovery records, which the C# application then loads into the BST. Hoang’s main task today is to assist Avisha with the technical commentary for the video, specifically explaining how the Remove algorithm handles nodes with two children to prove "Implementation matches design."
+
+Brent Li (Developer) reported that he has completed the final code "freeze." No further logic changes will be made to the BST to avoid introducing new bugs this close to the deadline. He spent the morning ensuring that the User Interface handles empty searches and invalid characters gracefully, fulfilling the "User Input Validation" requirement. Brent also verified that the Big O analysis in the report perfectly aligns with the final version of the code in the repository.
+
+Shrayesh Lawaju (Tester) provided the final results from the MSTest suite. He confirmed a 100% pass rate across all 15 unit tests, covering insertion, deletion, and searching. Shrayesh has finished the "Table of Test Cases" for the report, which includes a column for "Expected vs Actual Results." He noted that the testing approach in the report has been updated to reflect the final iterative testing cycle the team followed during Sprint 2.
+
+Obstacles: The team briefly discussed the file size of the demonstration video; it was decided to use standard compression to ensure it stays within a reasonable upload limit while maintaining 1080p clarity for the code walkthrough. The meeting closed with a final word of encouragement from Avisha: “Alone we can do so little; together we can do so much.” – Helen Keller.
