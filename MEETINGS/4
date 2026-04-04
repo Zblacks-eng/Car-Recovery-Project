@@ -1,0 +1,22 @@
+ This meeting is set for Wednesday, 1 April 2026. Since it is exactly between your current progress and the final deadline, it focuses on Unit Testing and Bug Fixing.
+
+Showing that you found and fixed bugs in a meeting log is a "top marks" tactic because it proves your team actually followed a quality control process rather than just writing code and hoping it works.
+
+Daily Standup Meeting: 1 April 2026
+Project: Mobile Car Recovery Management System
+
+Sprint: 2 | Time: 10:30 – 10:50 AM
+
+Attendance: Avisha Garusingha, Zion James-Simpson, Hoang Nguyen, Brent Li, Shrayesh Lawaju.
+
+The meeting began with a focus on quality assurance and defect management. Avisha Garusingha (Team Leader) noted that while the core Binary Search Tree (BST) is now functional, the team must prioritise "Code Quality" and "User Input Validation" to secure the 10 marks allocated for those items. She tasked the developers with performing a peer-review of each other’s methods to ensure the code follows the group's established C# style guidelines and includes appropriate error handling.
+
+Zion James-Simpson (Secretary) updated the team on the documentation. He has successfully integrated the "Appropriate Selection of Data Structure" section into the main report. Today, Zion is drafting the "Limitations and Critical Reflection" portion of the conclusion. He discussed with the team how we would approach a similar task in the future—specifically mentioning that we might implement an AVL tree or Red-Black tree to ensure the structure remains balanced, a common limitation of the basic BST currently in use.
+
+Hoang Nguyen (Developer) reported on the integration between the BST and the SQL database. He spent yesterday refining the data persistence logic so that the recovery records are correctly loaded into the tree upon application startup. Today, he is focusing on ensuring that the search function can handle partial matches or case-insensitive strings (e.g., searching "abc 123" vs "ABC 123"). This is a key requirement for making the system "intuitive" for a recovery driver.
+
+Brent Li (Developer) addressed a logic bug identified during yesterday’s session regarding the Delete method. He noted that the tree was not correctly re-linking nodes when a parent node with two children was removed. He spent the morning fixing this recursive logic and confirmed that the BST property is now maintained across all deletion scenarios. Today, he is working on the "Analysis of Data Structure and Algorithms" section, providing the Big O notation for these operations.
+
+Shrayesh Lawaju (Tester) provided an update on the Unit Testing progress. Now that Brent has fixed the deletion bug, Shrayesh is re-running the MSTest suite to ensure no regressions were introduced. He reported that the "Implementation matches design" criteria is being met, as the code now perfectly mirrors the pseudo-code drafted in the earlier sprints. His goal for the afternoon is to finalise the testing approach description in the report to ensure it matches our actual test code.
+
+Obstacles: The team discussed the 7-page limit for the report; it was decided to use concise tables for the test results to save space. The meeting concluded with a reminder of the deadline on 10 April, closing with: “Alone we can do so little; together we can do so much.” – Helen Keller.
