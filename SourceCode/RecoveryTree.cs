@@ -2,75 +2,119 @@ using System;
 
 namespace CST2550
 {
-	// tree logic- Updat3: add the search funtion
+	// This is my custom Binary Search Tree implementation.
+	// It stores RecoveryRecords sorted alphabetically by number plate.
+	// The reason I used a BST is so searching is O(log n) rather than
+	// looping through every single record every time someone searches.
 	public class RecoveryTree
 	{
 		public Node Root;
 
-		// Just a simple way to start adding cars to the tree
+		// Adds a new record into the tree
 		public void Add(RecoveryRecord newRecord)
 		{
 			Root = InsertRecursive(Root, newRecord);
 		}
 
-		// It just checks if the plate should go left or right.
-		private Node InsertRecursive(Node root, RecoveryRecord record)
+		// Recursively finds the right place to insert the new record.
+		// Goes left if the plate comes before the current node alphabetically,
+		// right if it comes after.
+		private Node InsertRecursive(Node current, RecoveryRecord record)
 		{
-			// If we hit an empty spot, drop the new car record here
-			if (root == null)
-			{
+			if (current == null)
 				return new Node(record);
-			}
 
-			// compare plates alphabetically - left if it's "smaller", right if "bigger"
-			int comparison = string.Compare(record.NumberPlate, root.Data.NumberPlate);
+			int comparison = string.Compare(record.NumberPlate, current.Data.NumberPlate);
 
 			if (comparison < 0)
-			{
-				root.Left = InsertRecursive(root.Left, record);
-			}
+				current.Left = InsertRecursive(current.Left, record);
 			else if (comparison > 0)
-			{
-				root.Right = InsertRecursive(root.Right, record);
-			}
-			else
-			{
-				//Duplicate plate, do nothing
-				return root;
-			}
+				current.Right = InsertRecursive(current.Right, record);
+			// if comparison == 0 then it's a duplicate plate, so just ignore it
 
-		// The public search we call from Program.cs
+			return current;
+		}
+
+		// Searches for a record by number plate and returns it (or null if not found)
 		public RecoveryRecord Search(string plate)
 		{
 			return SearchRecursive(Root, plate);
 		}
 
-		// This looks through the branches. If it finds the plate, it returns the whole car record.
-		private RecoveryRecord SearchRecursive(Node root, string plate)
+		private RecoveryRecord SearchRecursive(Node current, string plate)
 		{
-			// If we get to the end of a branch and find nothing, return null
-			if (root == null)
-			{
+			// Reached the end of a branch without finding it
+			if (current == null)
 				return null;
-			}
 
-			// Check if this node is the one we want
-			int comparison = string.Compare(plate, root.Data.NumberPlate);
+			int comparison = string.Compare(plate, current.Data.NumberPlate);
 
 			if (comparison == 0)
-			{
-				return root.Data; // Found it! 
-			}
+				return current.Data; // found it
 
-			// If what we're looking for is "smaller", look left. If not, look right.
+			if (comparison < 0)
+				return SearchRecursive(current.Left, plate);
+			else
+				return SearchRecursive(current.Right, plate);
+		}
+
+		// Removes a record from the tree by number plate.
+		// Returns true if something was actually deleted, false if the plate wasn't found.
+		public bool Delete(string plate)
+		{
+			bool wasDeleted = false;
+			Root = DeleteRecursive(Root, plate, ref wasDeleted);
+			return wasDeleted;
+		}
+
+		// This was the trickiest part to implement. There are three cases:
+		// 1. The node has no children - just remove it
+		// 2. The node has one child - replace the node with its child
+		// 3. The node has two children - replace with the in-order successor
+		private Node DeleteRecursive(Node current, string plate, ref bool wasDeleted)
+		{
+			if (current == null)
+				return null;
+
+			int comparison = string.Compare(plate, current.Data.NumberPlate);
+
 			if (comparison < 0)
 			{
-				return SearchRecursive(root.Left, plate);
+				current.Left = DeleteRecursive(current.Left, plate, ref wasDeleted);
+			}
+			else if (comparison > 0)
+			{
+				current.Right = DeleteRecursive(current.Right, plate, ref wasDeleted);
 			}
 			else
 			{
-				return SearchRecursive(root.Right, plate);
+				// This is the node we want to delete
+				wasDeleted = true;
+
+				// Case 1: leaf node, no children
+				if (current.Left == null && current.Right == null)
+					return null;
+
+				// Case 2: only has a right child
+				if (current.Left == null)
+					return current.Right;
+
+				// Case 2: only has a left child
+				if (current.Right == null)
+					return current.Left;
+
+				// Case 3: has both children
+				// Find the in-order successor - the smallest node in the right subtree.
+				// This is the next plate alphabetically so it's safe to replace with.
+				Node successor = current.Right;
+				while (successor.Left != null)
+					successor = successor.Left;
+
+				current.Data = successor.Data;
+				current.Right = DeleteRecursive(current.Right, successor.Data.NumberPlate, ref wasDeleted);
 			}
+
+			return current;
 		}
 	}
 }
