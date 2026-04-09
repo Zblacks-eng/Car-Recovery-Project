@@ -1,38 +1,1834 @@
 <!DOCTYPE html>
-<html>
-<head><title>Recovery System</title></head>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RoadAssist — Recovery Management</title>
+
+    <!-- Chart.js for the dashboard bar chart -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+
+    <style>
+
+            /* Reset - stops browsers adding their own margin/padding */
+            *, *::before, *::after {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+            }
+
+            /* Colour variables so I only have to change a colour in one place */
+            :root {
+                --blue: #2563eb;
+                --blue-dark: #1d4ed8;
+                --blue-light: #dbeafe;
+                --blue-text: #1e40af;
+                --green: #16a34a;
+                --green-dark: #15803d;
+                --green-light: #dcfce7;
+                --green-text: #166534;
+                --amber-light: #fef3c7;
+                --amber-text: #92400e;
+                --red: #dc2626;
+                --red-light: #fee2e2;
+                --red-text: #991b1b;
+                --gray-50: #f9fafb;
+                --gray-100: #f3f4f6;
+                --gray-200: #e5e7eb;
+                --gray-300: #d1d5db;
+                --gray-400: #9ca3af;
+                --gray-500: #6b7280;
+                --gray-600: #4b5563;
+                --gray-700: #374151;
+                --gray-900: #111827;
+                --navy: #0f172a;
+            }
+
+            html, body {
+                height: 100%;
+            }
+
+            body {
+                font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+                background: var(--gray-50);
+                color: var(--gray-900);
+                line-height: 1.5;
+            }
+
+            /* -------------------------------------------------------
+           Auth page - the login/register screen
+        ------------------------------------------------------- */
+
+            #authShell {
+                min-height: 100vh;
+                display: flex;
+                align-items: stretch;
+            }
+
+            /* Left side - dark brand panel */
+            .auth-brand {
+                flex: 1;
+                background: var(--navy);
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                padding: 60px 56px;
+                min-width: 380px;
+            }
+
+            .brand-logo {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                margin-bottom: 56px;
+            }
+
+            .brand-logo-icon {
+                width: 44px;
+                height: 44px;
+                background: var(--blue);
+                border-radius: 10px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+                .brand-logo-icon svg {
+                    width: 24px;
+                    height: 24px;
+                }
+
+            .brand-logo span {
+                font-size: 20px;
+                font-weight: 700;
+                color: #fff;
+                letter-spacing: -0.02em;
+            }
+
+            .brand-tagline {
+                font-size: 32px;
+                font-weight: 700;
+                color: #fff;
+                line-height: 1.25;
+                margin-bottom: 20px;
+                letter-spacing: -0.02em;
+            }
+
+            .brand-sub {
+                font-size: 15px;
+                color: #94a3b8;
+                line-height: 1.6;
+                max-width: 340px;
+            }
+
+            .brand-features {
+                margin-top: 48px;
+                display: flex;
+                flex-direction: column;
+                gap: 16px;
+            }
+
+            .brand-feature {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+            }
+
+            .brand-feature-dot {
+                width: 8px;
+                height: 8px;
+                background: var(--blue);
+                border-radius: 50%;
+                flex-shrink: 0;
+            }
+
+            .brand-feature span {
+                font-size: 14px;
+                color: #cbd5e1;
+            }
+
+            /* Right side - the actual form */
+            .auth-form-panel {
+                width: 480px;
+                flex-shrink: 0;
+                background: #fff;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                padding: 60px 48px;
+            }
+
+            .auth-tabs {
+                display: flex;
+                border-bottom: 2px solid var(--gray-200);
+                margin-bottom: 36px;
+            }
+
+            .auth-tab {
+                flex: 1;
+                padding: 12px 0;
+                background: transparent;
+                border: none;
+                font-size: 15px;
+                font-weight: 600;
+                cursor: pointer;
+                color: var(--gray-400);
+                font-family: inherit;
+                border-bottom: 2px solid transparent;
+                margin-bottom: -2px;
+                transition: color 0.15s, border-color 0.15s;
+            }
+
+                .auth-tab.active {
+                    color: var(--blue);
+                    border-bottom-color: var(--blue);
+                }
+
+            /* Only show the active panel */
+            .auth-panel {
+                display: none;
+            }
+
+                .auth-panel.active {
+                    display: block;
+                }
+
+            .auth-title {
+                font-size: 24px;
+                font-weight: 700;
+                color: var(--gray-900);
+                margin-bottom: 6px;
+                letter-spacing: -0.02em;
+            }
+
+            .auth-subtitle {
+                font-size: 14px;
+                color: var(--gray-500);
+                margin-bottom: 28px;
+            }
+
+            .field {
+                margin-bottom: 16px;
+            }
+
+                .field label {
+                    display: block;
+                    font-size: 13px;
+                    font-weight: 600;
+                    color: var(--gray-700);
+                    margin-bottom: 6px;
+                }
+
+                .field input {
+                    width: 100%;
+                    padding: 11px 14px;
+                    border: 1.5px solid var(--gray-300);
+                    border-radius: 8px;
+                    font-size: 14px;
+                    font-family: inherit;
+                    color: var(--gray-900);
+                    background: #fff;
+                    outline: none;
+                    transition: border-color 0.15s, box-shadow 0.15s;
+                }
+
+                    .field input:focus {
+                        border-color: var(--blue);
+                        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+                    }
+
+                    .field input::placeholder {
+                        color: var(--gray-400);
+                    }
+
+            /* Error/success message shown above the submit button */
+            .auth-alert {
+                padding: 10px 14px;
+                border-radius: 8px;
+                font-size: 13px;
+                font-weight: 500;
+                margin-bottom: 16px;
+                display: none;
+            }
+
+                .auth-alert.error {
+                    background: var(--red-light);
+                    color: var(--red-text);
+                    display: block;
+                }
+
+                .auth-alert.success {
+                    background: var(--green-light);
+                    color: var(--green-text);
+                    display: block;
+                }
+
+            /* -------------------------------------------------------
+           Buttons - reusable across the whole app
+        ------------------------------------------------------- */
+
+            .btn {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+                padding: 11px 20px;
+                border: none;
+                border-radius: 8px;
+                font-size: 14px;
+                font-weight: 600;
+                cursor: pointer;
+                font-family: inherit;
+                transition: background 0.15s, transform 0.1s;
+            }
+
+                .btn:active {
+                    transform: scale(0.98);
+                }
+
+            .btn-full {
+                width: 100%;
+            }
+
+            .btn-primary {
+                background: var(--blue);
+                color: #fff;
+            }
+
+                .btn-primary:hover {
+                    background: var(--blue-dark);
+                }
+
+            .btn-success {
+                background: var(--green);
+                color: #fff;
+            }
+
+                .btn-success:hover {
+                    background: var(--green-dark);
+                }
+
+            .btn-warning {
+                background: #d97706;
+                color: #fff;
+            }
+
+                .btn-warning:hover {
+                    background: #b45309;
+                }
+
+            .btn-ghost {
+                background: transparent;
+                color: var(--gray-600);
+                border: 1.5px solid var(--gray-300);
+            }
+
+                .btn-ghost:hover {
+                    background: var(--gray-100);
+                }
+
+            .btn-danger {
+                background: var(--red);
+                color: #fff;
+            }
+
+                .btn-danger:hover {
+                    background: #b91c1c;
+                }
+
+            /* -------------------------------------------------------
+           Main app shell (shown after login)
+        ------------------------------------------------------- */
+
+            /* Hidden by default - shown when the user logs in */
+            #appShell {
+                display: none;
+                min-height: 100vh;
+                flex-direction: column;
+            }
+
+            /* Top navigation bar */
+            .topbar {
+                background: var(--navy);
+                height: 60px;
+                display: flex;
+                align-items: center;
+                padding: 0 28px;
+                flex-shrink: 0;
+                position: sticky;
+                top: 0;
+                z-index: 100;
+            }
+
+            .topbar-logo {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                margin-right: auto;
+            }
+
+            .topbar-logo-icon {
+                width: 32px;
+                height: 32px;
+                background: var(--blue);
+                border-radius: 7px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+                .topbar-logo-icon svg {
+                    width: 18px;
+                    height: 18px;
+                }
+
+            .topbar-logo span {
+                font-size: 16px;
+                font-weight: 700;
+                color: #fff;
+                letter-spacing: -0.01em;
+            }
+
+            .topbar-user {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+            }
+
+            /* Circle with the user's initials */
+            .topbar-avatar {
+                width: 32px;
+                height: 32px;
+                background: var(--blue);
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 12px;
+                font-weight: 700;
+                color: #fff;
+            }
+
+            .topbar-name {
+                font-size: 14px;
+                color: #e2e8f0;
+                font-weight: 500;
+            }
+
+            .topbar-role {
+                font-size: 11px;
+                color: #64748b;
+                background: #1e293b;
+                padding: 2px 8px;
+                border-radius: 20px;
+            }
+
+            .topbar-logout {
+                background: transparent;
+                border: 1px solid #334155;
+                color: #94a3b8;
+                padding: 6px 14px;
+                border-radius: 6px;
+                font-size: 13px;
+                cursor: pointer;
+                font-family: inherit;
+                margin-left: 8px;
+                transition: background 0.15s, color 0.15s;
+            }
+
+                .topbar-logout:hover {
+                    background: #1e293b;
+                    color: #e2e8f0;
+                }
+
+            .app-body {
+                display: flex;
+                flex: 1;
+                overflow: hidden;
+            }
+
+            /* -------------------------------------------------------
+           Sidebar navigation
+        ------------------------------------------------------- */
+
+            .sidebar {
+                width: 220px;
+                flex-shrink: 0;
+                background: #fff;
+                border-right: 1px solid var(--gray-200);
+                padding: 20px 12px;
+                display: flex;
+                flex-direction: column;
+                gap: 4px;
+            }
+
+            .sidebar-section-label {
+                font-size: 10px;
+                font-weight: 700;
+                color: var(--gray-400);
+                letter-spacing: 0.08em;
+                text-transform: uppercase;
+                padding: 4px 12px 8px;
+                margin-top: 8px;
+            }
+
+            .sidebar-item {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding: 9px 12px;
+                border-radius: 8px;
+                cursor: pointer;
+                font-size: 14px;
+                color: var(--gray-600);
+                font-weight: 500;
+                transition: background 0.12s, color 0.12s;
+                border: none;
+                background: transparent;
+                font-family: inherit;
+                width: 100%;
+                text-align: left;
+            }
+
+                .sidebar-item svg {
+                    width: 16px;
+                    height: 16px;
+                    flex-shrink: 0;
+                }
+
+                .sidebar-item:hover {
+                    background: var(--gray-100);
+                    color: var(--gray-900);
+                }
+
+                .sidebar-item.active {
+                    background: var(--blue-light);
+                    color: var(--blue-text);
+                }
+
+            /* -------------------------------------------------------
+           Main content area
+        ------------------------------------------------------- */
+
+            .main {
+                flex: 1;
+                overflow-y: auto;
+                padding: 28px 32px;
+            }
+
+            .page-header {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                margin-bottom: 24px;
+            }
+
+            .page-title {
+                font-size: 20px;
+                font-weight: 700;
+                color: var(--gray-900);
+                letter-spacing: -0.01em;
+            }
+
+            .page-sub {
+                font-size: 13px;
+                color: var(--gray-500);
+                margin-top: 2px;
+            }
+
+            .content-card {
+                background: #fff;
+                border: 1px solid var(--gray-200);
+                border-radius: 12px;
+                padding: 24px;
+                margin-bottom: 20px;
+            }
+
+            .content-card-title {
+                font-size: 15px;
+                font-weight: 700;
+                color: var(--gray-900);
+                margin-bottom: 18px;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+                .content-card-title svg {
+                    width: 16px;
+                    height: 16px;
+                }
+
+            /* -------------------------------------------------------
+           Dashboard - stat cards and status pills
+        ------------------------------------------------------- */
+
+            .stats-row {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 16px;
+                margin-bottom: 20px;
+            }
+
+            .stat-card {
+                background: #fff;
+                border: 1px solid var(--gray-200);
+                border-radius: 12px;
+                padding: 20px 22px;
+            }
+
+            .stat-icon {
+                width: 36px;
+                height: 36px;
+                border-radius: 8px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin-bottom: 14px;
+            }
+
+                .stat-icon svg {
+                    width: 18px;
+                    height: 18px;
+                }
+
+                .stat-icon.blue {
+                    background: var(--blue-light);
+                }
+
+                .stat-icon.amber {
+                    background: var(--amber-light);
+                }
+
+                .stat-icon.green {
+                    background: var(--green-light);
+                }
+
+            .stat-label {
+                font-size: 12px;
+                font-weight: 600;
+                color: var(--gray-500);
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+                margin-bottom: 6px;
+            }
+
+            .stat-value {
+                font-size: 32px;
+                font-weight: 700;
+                color: var(--gray-900);
+                letter-spacing: -0.02em;
+                line-height: 1;
+            }
+
+            .stat-sub {
+                font-size: 12px;
+                color: var(--gray-400);
+                margin-top: 6px;
+            }
+
+            /* Coloured pills showing counts by status */
+            .status-row {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 12px;
+                margin-bottom: 20px;
+            }
+
+            .status-mini {
+                border-radius: 10px;
+                padding: 14px 16px;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+            }
+
+            .status-mini-label {
+                font-size: 13px;
+                font-weight: 600;
+            }
+
+            .status-mini-val {
+                font-size: 22px;
+                font-weight: 700;
+            }
+
+            .sm-pending {
+                background: var(--amber-light);
+            }
+
+                .sm-pending .status-mini-label,
+                .sm-pending .status-mini-val {
+                    color: var(--amber-text);
+                }
+
+            .sm-inprog {
+                background: var(--blue-light);
+            }
+
+                .sm-inprog .status-mini-label,
+                .sm-inprog .status-mini-val {
+                    color: var(--blue-text);
+                }
+
+            .sm-done {
+                background: var(--green-light);
+            }
+
+                .sm-done .status-mini-label,
+                .sm-done .status-mini-val {
+                    color: var(--green-text);
+                }
+
+            /* Chart container needs a fixed height for Chart.js to work */
+            .chart-wrap {
+                position: relative;
+                height: 260px;
+            }
+
+            /* -------------------------------------------------------
+           Search page - lookup and edit forms
+        ------------------------------------------------------- */
+
+            .search-row {
+                display: flex;
+                gap: 10px;
+            }
+
+                .search-row input {
+                    flex: 1;
+                    padding: 11px 14px;
+                    border: 1.5px solid var(--gray-300);
+                    border-radius: 8px;
+                    font-size: 14px;
+                    font-family: inherit;
+                    color: var(--gray-900);
+                    outline: none;
+                    transition: border-color 0.15s, box-shadow 0.15s;
+                }
+
+                    .search-row input:focus {
+                        border-color: var(--blue);
+                        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+                    }
+
+            /* The result card is hidden until a search returns something */
+            .result-card {
+                border: 1px solid var(--gray-200);
+                border-radius: 12px;
+                overflow: hidden;
+                margin-top: 18px;
+                display: none;
+            }
+
+                .result-card.visible {
+                    display: block;
+                }
+
+            .result-header {
+                background: var(--navy);
+                padding: 16px 20px;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+            }
+
+            .plate-badge {
+                background: #fff;
+                color: var(--navy);
+                font-size: 16px;
+                font-weight: 800;
+                padding: 6px 16px;
+                border-radius: 6px;
+                letter-spacing: 0.1em;
+            }
+
+            /* Coloured status labels */
+            .status-pill {
+                font-size: 12px;
+                font-weight: 700;
+                padding: 5px 14px;
+                border-radius: 20px;
+            }
+
+            .sp-pending {
+                background: var(--amber-light);
+                color: var(--amber-text);
+            }
+
+            .sp-inprogress {
+                background: var(--blue-light);
+                color: var(--blue-text);
+            }
+
+            .sp-completed {
+                background: var(--green-light);
+                color: var(--green-text);
+            }
+
+            .result-body {
+                padding: 20px;
+            }
+
+            .detail-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 0;
+            }
+
+            .detail-item {
+                padding: 10px 0;
+                border-bottom: 1px solid var(--gray-100);
+            }
+
+                /* Remove the border from the last two items (bottom row) */
+                .detail-item:nth-last-child(-n+2) {
+                    border-bottom: none;
+                }
+
+            .detail-item-label {
+                font-size: 11px;
+                font-weight: 700;
+                color: var(--gray-400);
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+                margin-bottom: 3px;
+            }
+
+            .detail-item-value {
+                font-size: 14px;
+                color: var(--gray-900);
+                font-weight: 500;
+            }
+
+            .result-actions {
+                display: flex;
+                gap: 8px;
+                margin-top: 18px;
+            }
+
+            /* Edit form - hidden until the user clicks "Edit record" */
+            .edit-form {
+                display: none;
+            }
+
+                .edit-form.visible {
+                    display: block;
+                }
+
+            .edit-form-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 14px;
+            }
+
+                .edit-form-grid .full {
+                    grid-column: 1 / -1;
+                }
+
+            .form-field {
+                display: flex;
+                flex-direction: column;
+                gap: 5px;
+            }
+
+                .form-field label {
+                    font-size: 12px;
+                    font-weight: 700;
+                    color: var(--gray-600);
+                    text-transform: uppercase;
+                    letter-spacing: 0.04em;
+                }
+
+                .form-field input,
+                .form-field select {
+                    padding: 10px 12px;
+                    border: 1.5px solid var(--gray-300);
+                    border-radius: 8px;
+                    font-size: 14px;
+                    font-family: inherit;
+                    color: var(--gray-900);
+                    outline: none;
+                    transition: border-color 0.15s, box-shadow 0.15s;
+                }
+
+                    .form-field input:focus,
+                    .form-field select:focus {
+                        border-color: var(--blue);
+                        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+                    }
+
+            .edit-btn-row {
+                display: flex;
+                gap: 10px;
+                margin-top: 18px;
+            }
+
+            /* Register form uses the same 2-column grid layout */
+            .reg-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 14px;
+            }
+
+                .reg-grid .full {
+                    grid-column: 1 / -1;
+                }
+
+            /* -------------------------------------------------------
+           Toast notification - small popup in the bottom right
+        ------------------------------------------------------- */
+
+            #toast {
+                position: fixed;
+                bottom: 24px;
+                right: 24px;
+                padding: 12px 20px;
+                border-radius: 10px;
+                font-size: 14px;
+                font-weight: 600;
+                opacity: 0;
+                pointer-events: none;
+                z-index: 9999;
+                transition: opacity 0.2s, transform 0.2s;
+                transform: translateY(10px);
+                min-width: 220px;
+            }
+
+                #toast.show {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+
+                #toast.success {
+                    background: var(--navy);
+                    color: #f0fdf4;
+                }
+
+                #toast.error {
+                    background: var(--red);
+                    color: #fff;
+                }
+
+            /* Hide the brand panel and collapse some layouts on smaller screens */
+            @media (max-width: 900px) {
+                .auth-brand {
+                    display: none;
+                }
+
+                .auth-form-panel {
+                    width: 100%;
+                    padding: 40px 28px;
+                }
+
+                .stats-row, .status-row {
+                    grid-template-columns: 1fr;
+                }
+
+                .sidebar {
+                    display: none;
+                }
+
+                .main {
+                    padding: 20px 16px;
+                }
+            }
+    </style>
+</head>
 <body>
-    <h1>Recovery System </h1>
-    <div>
-        <input id="sP" placeholder="Search Plate">
-        <button onclick="doSearch()">Search</button>
-        <div id="out"></div>
+
+    <!-- ======================================================
+         AUTH SCREEN
+         Shown first - user must log in or register before
+         they can access the main app
+    ====================================================== -->
+    <div id="authShell">
+
+        <!-- Left panel - branding / feature list -->
+        <div class="auth-brand">
+            <div class="brand-logo">
+                <div class="brand-logo-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="1" y="3" width="15" height="13" rx="2" />
+                        <path d="M16 8h4l3 5v3h-7V8z" />
+                        <circle cx="5.5" cy="18.5" r="2.5" />
+                        <circle cx="18.5" cy="18.5" r="2.5" />
+                    </svg>
+                </div>
+                <span>RoadAssist</span>
+            </div>
+            <div class="brand-tagline">Mobile Recovery<br>Management System</div>
+            <div class="brand-sub">Dispatch, track, and manage car recovery operations with precision and speed.</div>
+            <div class="brand-features">
+                <div class="brand-feature">
+                    <div class="brand-feature-dot"></div>
+                    <span>Real-time binary search tree lookup</span>
+                </div>
+                <div class="brand-feature">
+                    <div class="brand-feature-dot"></div>
+                    <span>SQL-backed persistent storage</span>
+                </div>
+                <div class="brand-feature">
+                    <div class="brand-feature-dot"></div>
+                    <span>Full breakdown lifecycle management</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right panel - login / register forms -->
+        <div class="auth-form-panel">
+
+            <!-- Tab switcher between Sign in and Create account -->
+            <div class="auth-tabs">
+                <button class="auth-tab active" onclick="switchAuthTab('login')">Sign in</button>
+                <button class="auth-tab" onclick="switchAuthTab('register')">Create account</button>
+            </div>
+
+            <!-- Login form -->
+            <div id="loginPanel" class="auth-panel active">
+                <div class="auth-title">Welcome back</div>
+                <div class="auth-subtitle">Sign in to your operator account</div>
+                <div id="loginAlert" class="auth-alert"></div>
+                <div class="field">
+                    <label>Username</label>
+                    <input type="text" id="loginUser" placeholder="Enter your username" autocomplete="username">
+                </div>
+                <div class="field">
+                    <label>Password</label>
+                    <!-- Press Enter to submit instead of having to click the button -->
+                    <input type="password" id="loginPass" placeholder="Enter your password"
+                           autocomplete="current-password"
+                           onkeydown="if(event.key === 'Enter') doLogin()">
+                </div>
+                <button class="btn btn-primary btn-full" onclick="doLogin()" style="margin-top: 8px;">Sign in</button>
+            </div>
+
+            <!-- Register form -->
+            <div id="registerPanel" class="auth-panel">
+                <div class="auth-title">Create account</div>
+                <div class="auth-subtitle">Register as a new recovery operator</div>
+                <div id="registerAlert" class="auth-alert"></div>
+                <div class="field">
+                    <label>Full name</label>
+                    <input type="text" id="regName" placeholder="e.g. James Worthington">
+                </div>
+                <div class="field">
+                    <label>Username</label>
+                    <input type="text" id="regUser" placeholder="Choose a username">
+                </div>
+                <div class="field">
+                    <label>Password</label>
+                    <input type="password" id="regPass" placeholder="At least 6 characters"
+                           onkeydown="if(event.key === 'Enter') doRegister()">
+                </div>
+                <button class="btn btn-success btn-full" onclick="doRegister()" style="margin-top: 8px;">Create account</button>
+            </div>
+
+        </div>
     </div>
-    <hr>
-    <div>
-        <input id="p" placeholder="New Plate">
-        <input id="m" placeholder="Model">
-        <button onclick="doAdd()">Add Car</button>
+
+
+    <!-- ======================================================
+         MAIN APP SHELL
+         Hidden until the user logs in successfully
+    ====================================================== -->
+    <div id="appShell">
+
+        <!-- Top navigation bar -->
+        <div class="topbar">
+            <div class="topbar-logo">
+                <div class="topbar-logo-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="1" y="3" width="15" height="13" rx="2" />
+                        <path d="M16 8h4l3 5v3h-7V8z" />
+                        <circle cx="5.5" cy="18.5" r="2.5" />
+                        <circle cx="18.5" cy="18.5" r="2.5" />
+                    </svg>
+                </div>
+                <span>RoadAssist</span>
+            </div>
+            <div class="topbar-user">
+                <!-- Avatar shows the user's initials - filled in by JS on login -->
+                <div class="topbar-avatar" id="topbarInitials">OP</div>
+                <div>
+                    <div class="topbar-name" id="topbarName">Operator</div>
+                    <div class="topbar-role" id="topbarRole">Operator</div>
+                </div>
+                <button class="topbar-logout" onclick="doLogout()">Sign out</button>
+            </div>
+        </div>
+
+        <div class="app-body">
+
+            <!-- Left sidebar -->
+            <div class="sidebar">
+                <span class="sidebar-section-label">Operations</span>
+                <button class="sidebar-item active" id="nav-dashboard" onclick="showView('dashboard')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="7" height="7" rx="1" />
+                        <rect x="14" y="3" width="7" height="7" rx="1" />
+                        <rect x="3" y="14" width="7" height="7" rx="1" />
+                        <rect x="14" y="14" width="7" height="7" rx="1" />
+                    </svg>
+                    Dashboard
+                </button>
+                <button class="sidebar-item" id="nav-search" onclick="showView('search')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8" />
+                        <path d="m21 21-4.35-4.35" />
+                    </svg>
+                    Search records
+                </button>
+                <button class="sidebar-item" id="nav-register" onclick="showView('register')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 5v14M5 12h14" />
+                    </svg>
+                    New breakdown
+                </button>
+            </div>
+
+            <!-- Main content - swapped by showView() -->
+            <div class="main">
+
+                <!-- ================================================
+                     DASHBOARD PAGE
+                ================================================ -->
+                <div id="view-dashboard">
+                    <div class="page-header">
+                        <div>
+                            <div class="page-title">Dashboard</div>
+                            <div class="page-sub">Live breakdown activity overview</div>
+                        </div>
+                        <button class="btn btn-ghost" style="padding: 8px 16px; font-size: 13px;" onclick="loadStats()">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                 stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
+                                <path d="M21 3v5h-5" />
+                                <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
+                                <path d="M3 21v-5h5" />
+                            </svg>
+                            Refresh
+                        </button>
+                    </div>
+
+                    <!-- Top 3 summary stat cards -->
+                    <div class="stats-row">
+                        <div class="stat-card">
+                            <div class="stat-icon blue">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="#1e40af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" />
+                                    <path d="M16 2v4M8 2v4M3 10h18" />
+                                </svg>
+                            </div>
+                            <div class="stat-label">Today</div>
+                            <div class="stat-value" id="statToday">—</div>
+                            <div class="stat-sub">breakdowns registered</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon amber">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="#92400e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" />
+                                </svg>
+                            </div>
+                            <div class="stat-label">This month</div>
+                            <div class="stat-value" id="statMonth">—</div>
+                            <div class="stat-sub">breakdowns this month</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon green">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="#166534" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+                                </svg>
+                            </div>
+                            <div class="stat-label">Total</div>
+                            <div class="stat-value" id="statTotal">—</div>
+                            <div class="stat-sub">all-time records</div>
+                        </div>
+                    </div>
+
+                    <!-- Status breakdown row -->
+                    <div class="status-row">
+                        <div class="status-mini sm-pending">
+                            <div class="status-mini-label">Pending</div>
+                            <div class="status-mini-val" id="statPending">—</div>
+                        </div>
+                        <div class="status-mini sm-inprog">
+                            <div class="status-mini-label">In Progress</div>
+                            <div class="status-mini-val" id="statInProg">—</div>
+                        </div>
+                        <div class="status-mini sm-done">
+                            <div class="status-mini-label">Completed</div>
+                            <div class="status-mini-val" id="statDone">—</div>
+                        </div>
+                    </div>
+
+                    <!-- Bar chart - last 30 days -->
+                    <div class="content-card">
+                        <div class="content-card-title">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+                            </svg>
+                            Breakdowns — last 30 days
+                        </div>
+                        <div class="chart-wrap">
+                            <canvas id="breakdownChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+
+                <!-- ================================================
+                     SEARCH & EDIT PAGE
+                ================================================ -->
+                <div id="view-search" style="display: none;">
+                    <div class="page-header">
+                        <div>
+                            <div class="page-title">Search &amp; manage records</div>
+                            <div class="page-sub">Look up a vehicle by number plate to view or edit its recovery record</div>
+                        </div>
+                    </div>
+
+                    <div class="content-card">
+                        <div class="content-card-title">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="11" cy="11" r="8" />
+                                <path d="m21 21-4.35-4.35" />
+                            </svg>
+                            Vehicle lookup
+                        </div>
+
+                        <div class="search-row">
+                            <input type="text" id="sPlate" placeholder="Enter number plate — e.g. AB12 CDE"
+                                   onkeydown="if(event.key === 'Enter') doSearch()">
+                            <button class="btn btn-primary" onclick="doSearch()">Search</button>
+                        </div>
+
+                        <!-- Result card - hidden until a search comes back with data -->
+                        <div class="result-card" id="resultCard">
+                            <div class="result-header">
+                                <span class="plate-badge" id="rP"></span>
+                                <span class="status-pill" id="rSBadge"></span>
+                            </div>
+
+                            <!-- View mode - read only -->
+                            <div class="result-body" id="viewMode">
+                                <div class="detail-grid">
+                                    <div class="detail-item">
+                                        <div class="detail-item-label">Car model</div>
+                                        <div class="detail-item-value" id="rM"></div>
+                                    </div>
+                                    <div class="detail-item">
+                                        <div class="detail-item-label">Status</div>
+                                        <div class="detail-item-value" id="rSText"></div>
+                                    </div>
+                                    <div class="detail-item">
+                                        <div class="detail-item-label">Issue</div>
+                                        <div class="detail-item-value" id="rI"></div>
+                                    </div>
+                                    <div class="detail-item">
+                                        <div class="detail-item-label">Location</div>
+                                        <div class="detail-item-value" id="rL"></div>
+                                    </div>
+                                    <div class="detail-item">
+                                        <div class="detail-item-label">Breakdown time</div>
+                                        <div class="detail-item-value" id="rT"></div>
+                                    </div>
+                                </div>
+                                <div class="result-actions">
+                                    <button class="btn btn-warning" onclick="enableEdit()">Edit record</button>
+                                    <button class="btn btn-danger" onclick="doDelete()">Delete record</button>
+                                </div>
+                            </div>
+
+                            <!-- Edit mode - shown when user clicks Edit record -->
+                            <div class="result-body edit-form" id="editMode">
+                                <div class="edit-form-grid">
+                                    <div class="form-field">
+                                        <label>Car model</label>
+                                        <input id="inM">
+                                    </div>
+                                    <div class="form-field">
+                                        <label>Status</label>
+                                        <select id="inS">
+                                            <option value="Pending">Pending</option>
+                                            <option value="In Progress">In Progress</option>
+                                            <option value="Completed">Completed</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-field full">
+                                        <label>Issue description</label>
+                                        <input id="inI">
+                                    </div>
+                                    <div class="form-field full">
+                                        <label>Current location</label>
+                                        <input id="inL">
+                                    </div>
+                                    <div class="form-field full">
+                                        <label>Breakdown time</label>
+                                        <input type="datetime-local" id="inT">
+                                    </div>
+                                </div>
+                                <div class="edit-btn-row">
+                                    <button class="btn btn-success" onclick="doUpdate()">Save changes</button>
+                                    <button class="btn btn-ghost" onclick="cancelEdit()">Cancel</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <!-- ================================================
+                     REGISTER NEW BREAKDOWN PAGE
+                ================================================ -->
+                <div id="view-register" style="display: none;">
+                    <div class="page-header">
+                        <div>
+                            <div class="page-title">Register new breakdown</div>
+                            <div class="page-sub">Add a new vehicle recovery request to the system</div>
+                        </div>
+                    </div>
+
+                    <div class="content-card">
+                        <div class="content-card-title">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 5v14M5 12h14" />
+                            </svg>
+                            Breakdown details
+                        </div>
+
+                        <div class="reg-grid">
+                            <div class="form-field">
+                                <label>Number plate</label>
+                                <input id="p" placeholder="e.g. AB12 CDE">
+                            </div>
+                            <div class="form-field">
+                                <label>Car model</label>
+                                <input id="m" placeholder="e.g. Ford Focus">
+                            </div>
+                            <div class="form-field full">
+                                <label>Issue description</label>
+                                <input id="i" placeholder="e.g. Flat tyre, engine failure, won't start">
+                            </div>
+                            <div class="form-field full">
+                                <label>Current location</label>
+                                <input id="l" placeholder="e.g. M25 Junction 12, Watford">
+                            </div>
+                            <div class="form-field">
+                                <label>Status</label>
+                                <select id="newStatus">
+                                    <option value="Pending">Pending</option>
+                                    <option value="In Progress">In Progress</option>
+                                    <option value="Completed">Completed</option>
+                                </select>
+                            </div>
+                            <div class="form-field">
+                                <!-- Breakdown time is optional - defaults to right now if left blank -->
+                                <label>
+                                    Breakdown time
+                                    <span style="font-weight: 400; color: var(--gray-400); text-transform: none; letter-spacing: 0;">
+                                        (leave blank for now)
+                                    </span>
+                                </label>
+                                <input type="datetime-local" id="t">
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 20px; padding-top: 18px; border-top: 1px solid var(--gray-100);">
+                            <button class="btn btn-success" onclick="doAdd()" style="padding: 12px 28px;">
+                                Register breakdown
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
     </div>
+
+    <!-- Small popup notification in the bottom-right corner -->
+    <div id="toast"></div>
+
 
     <script>
-        async function doSearch() {
-            const res = await fetch('/api/recovery/' + document.getElementById('sP').value);
-            if(res.ok) {
-                const d = await res.json();
-                document.getElementById('out').innerText = Found: ${d.carModel} [${d.status}];
-            } else { alert("Not found"); }
+
+        // Keep track of who's logged in and the current chart instance
+        let currentUser = null;
+        let chartInstance = null;
+
+
+        // -------------------------------------------------------
+        // Auth functions
+        // -------------------------------------------------------
+
+        // Switches between the Sign in and Create account tabs
+        function switchAuthTab(tab) {
+            document.querySelectorAll('.auth-tab').forEach((btn, i) => {
+                btn.classList.toggle('active', (tab === 'login' && i === 0) || (tab === 'register' && i === 1));
+            });
+            document.getElementById('loginPanel').classList.toggle('active', tab === 'login');
+            document.getElementById('registerPanel').classList.toggle('active', tab === 'register');
         }
 
-        async function doAdd() {
-            const rec = { numberPlate: document.getElementById('p').value, carModel: document.getElementById('m').value };
-            await fetch('/api/recovery', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(rec)
-            });
-            alert("Added!");
+        // Shows an error or success message inside the auth form
+        function setAuthAlert(elementId, message, type) {
+            const el = document.getElementById(elementId);
+            el.textContent = message;
+            el.className = 'auth-alert ' + type;
         }
+
+        async function doLogin() {
+            const username = document.getElementById('loginUser').value.trim();
+            const password = document.getElementById('loginPass').value;
+
+            if (!username || !password) {
+                setAuthAlert('loginAlert', 'Please enter username and password.', 'error');
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await res.json();
+
+                if (res.ok && data.success) {
+                    currentUser = data;
+                    enterApp();
+                } else {
+                    setAuthAlert('loginAlert', data.message || 'Login failed.', 'error');
+                }
+            } catch {
+                setAuthAlert('loginAlert', 'Could not connect to server.', 'error');
+            }
+        }
+
+        async function doRegister() {
+            const fullName = document.getElementById('regName').value.trim();
+            const username = document.getElementById('regUser').value.trim();
+            const password = document.getElementById('regPass').value;
+
+            if (!fullName || !username || !password) {
+                setAuthAlert('registerAlert', 'All fields are required.', 'error');
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/auth/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password, fullName })
+                });
+
+                const data = await res.json();
+
+                if (res.ok && data.success) {
+                    setAuthAlert('registerAlert', 'Account created! You can now sign in.', 'success');
+                    // Redirect to the login tab after a short delay
+                    setTimeout(() => switchAuthTab('login'), 1200);
+                } else {
+                    setAuthAlert('registerAlert', data.message || 'Registration failed.', 'error');
+                }
+            } catch {
+                setAuthAlert('registerAlert', 'Could not connect to server.', 'error');
+            }
+        }
+
+        // Hides the auth screen and shows the main app
+        function enterApp() {
+            document.getElementById('authShell').style.display = 'none';
+            document.getElementById('appShell').style.display = 'flex';
+
+            // Build initials from the user's full name (e.g. "James Smith" -> "JS")
+            const initials = currentUser.fullName
+                .split(' ')
+                .map(word => word[0])
+                .join('')
+                .substring(0, 2)
+                .toUpperCase();
+
+            document.getElementById('topbarInitials').textContent = initials;
+            document.getElementById('topbarName').textContent = currentUser.fullName;
+            document.getElementById('topbarRole').textContent = currentUser.role;
+
+            showView('dashboard');
+            loadStats();
+        }
+
+        // Clears state and goes back to the login screen
+        function doLogout() {
+            currentUser = null;
+
+            document.getElementById('appShell').style.display = 'none';
+            document.getElementById('authShell').style.display = 'flex';
+
+            // Clear the login form
+            document.getElementById('loginUser').value = '';
+            document.getElementById('loginPass').value = '';
+            document.getElementById('loginAlert').className = 'auth-alert';
+
+            // Hide any search results that were showing
+            document.getElementById('resultCard').classList.remove('visible');
+
+            // Destroy the chart so it doesn't duplicate next time
+            if (chartInstance) {
+                chartInstance.destroy();
+                chartInstance = null;
+            }
+
+            switchAuthTab('login');
+        }
+
+
+        // -------------------------------------------------------
+        // Navigation
+        // -------------------------------------------------------
+
+        // Shows the selected view and highlights the correct sidebar button
+        function showView(name) {
+            const views = ['dashboard', 'search', 'register'];
+
+            views.forEach(v => {
+                document.getElementById('view-' + v).style.display = v === name ? 'block' : 'none';
+                document.getElementById('nav-' + v).classList.toggle('active', v === name);
+            });
+        }
+
+
+        // -------------------------------------------------------
+        // Toast notifications
+        // -------------------------------------------------------
+
+        function showToast(message, type) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'show ' + (type || 'success');
+
+            // Clear any existing timeout so back-to-back toasts work properly
+            clearTimeout(toast._timer);
+            toast._timer = setTimeout(() => { toast.className = ''; }, 2800);
+        }
+
+
+        // -------------------------------------------------------
+        // Dashboard stats + chart
+        // -------------------------------------------------------
+
+        async function loadStats() {
+            try {
+                const res = await fetch('/api/recovery/stats');
+                if (!res.ok) return;
+
+                const stats = await res.json();
+
+                document.getElementById('statToday').textContent = stats.todayCount;
+                document.getElementById('statMonth').textContent = stats.thisMonthCount;
+                document.getElementById('statTotal').textContent = stats.totalCount;
+                document.getElementById('statPending').textContent = stats.pendingCount;
+                document.getElementById('statInProg').textContent = stats.inProgressCount;
+                document.getElementById('statDone').textContent = stats.completedCount;
+
+                renderChart(stats.last30Days);
+            } catch {
+                showToast('Could not load stats', 'error');
+            }
+        }
+
+        function renderChart(data) {
+            // The API only returns days that have at least one breakdown.
+            // We need to fill in the gaps with 0 so the chart always shows a full 30 days.
+            const lookup = {};
+            data.forEach(entry => { lookup[entry.date] = entry.count; });
+
+            const labels = [];
+            const values = [];
+
+            for (let i = 29; i >= 0; i--) {
+                const date = new Date();
+                date.setDate(date.getDate() - i);
+                const label = date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' });
+                labels.push(label);
+                values.push(lookup[label] || 0);
+            }
+
+            // Destroy the old chart before creating a new one, otherwise they stack up
+            if (chartInstance) chartInstance.destroy();
+
+            const ctx = document.getElementById('breakdownChart').getContext('2d');
+
+            chartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Breakdowns',
+                        data: values,
+                        backgroundColor: '#dbeafe',
+                        borderColor: '#2563eb',
+                        borderWidth: 1.5,
+                        borderRadius: 4,
+                        hoverBackgroundColor: '#2563eb'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#0f172a',
+                            titleColor: '#94a3b8',
+                            bodyColor: '#f1f5f9',
+                            padding: 10,
+                            cornerRadius: 6,
+                            callbacks: {
+                                label: ctx => ` ${ctx.parsed.y} breakdown${ctx.parsed.y !== 1 ? 's' : ''}`
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            ticks: {
+                                color: '#9ca3af',
+                                font: { size: 11 },
+                                maxRotation: 45,
+                                // Only label every 5th bar so the axis doesn't get too crowded
+                                callback: function (val, i) {
+                                    return i % 5 === 0 ? this.getLabelForValue(val) : '';
+                                }
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                color: '#9ca3af',
+                                font: { size: 11 },
+                                stepSize: 1,
+                                precision: 0
+                            },
+                            grid: { color: '#f3f4f6' }
+                        }
+                    }
+                }
+            });
+        }
+
+
+        // -------------------------------------------------------
+        // Recovery record helpers
+        // -------------------------------------------------------
+
+        // Returns the right CSS class for the coloured status pill
+        function getStatusPillClass(status) {
+            if (!status) return 'status-pill sp-pending';
+            const key = status.toLowerCase().replace(/\s+/g, '');
+            if (key === 'inprogress') return 'status-pill sp-inprogress';
+            if (key === 'completed') return 'status-pill sp-completed';
+            return 'status-pill sp-pending';
+        }
+
+        // Formats a date/time string into something readable like "12 Apr 2025, 14:30"
+        function formatDate(dateString) {
+            try {
+                return new Date(dateString).toLocaleString('en-GB', {
+                    day: '2-digit', month: 'short', year: 'numeric',
+                    hour: '2-digit', minute: '2-digit'
+                });
+            } catch {
+                return dateString;
+            }
+        }
+
+        // Converts an ISO date string to the format expected by datetime-local inputs
+        function toDatetimeLocal(dateString) {
+            try {
+                const dt = new Date(dateString);
+                const pad = n => String(n).padStart(2, '0');
+                return `${dt.getFullYear()}-${pad(dt.getMonth() + 1)}-${pad(dt.getDate())}T${pad(dt.getHours())}:${pad(dt.getMinutes())}`;
+            } catch {
+                return '';
+            }
+        }
+
+
+        // -------------------------------------------------------
+        // Search
+        // -------------------------------------------------------
+
+        async function doSearch() {
+            const plate = document.getElementById('sPlate').value.trim();
+
+            if (!plate) {
+                showToast('Enter a number plate to search', 'error');
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/recovery/' + encodeURIComponent(plate));
+
+                if (res.ok) {
+                    const record = await res.json();
+
+                    // Populate the view panel
+                    document.getElementById('rP').textContent = record.numberPlate;
+                    document.getElementById('rM').textContent = record.carModel;
+                    document.getElementById('rI').textContent = record.issue;
+                    document.getElementById('rL').textContent = record.location;
+                    document.getElementById('rT').textContent = formatDate(record.breakdownTime);
+                    document.getElementById('rSText').textContent = record.status;
+
+                    const badge = document.getElementById('rSBadge');
+                    badge.textContent = record.status;
+                    badge.className = getStatusPillClass(record.status);
+
+                    // Pre-fill the edit form with the current values
+                    document.getElementById('inM').value = record.carModel;
+                    document.getElementById('inI').value = record.issue;
+                    document.getElementById('inL').value = record.location;
+                    document.getElementById('inS').value = record.status;
+                    document.getElementById('inT').value = record.breakdownTime
+                        ? toDatetimeLocal(record.breakdownTime) : '';
+
+                    document.getElementById('resultCard').classList.add('visible');
+                    cancelEdit(); // make sure we start in view mode, not edit mode
+
+                } else {
+                    showToast('No record found for "' + plate + '"', 'error');
+                    document.getElementById('resultCard').classList.remove('visible');
+                }
+            } catch {
+                showToast('Connection error', 'error');
+            }
+        }
+
+
+        // -------------------------------------------------------
+        // Edit / delete
+        // -------------------------------------------------------
+
+        function enableEdit() {
+            document.getElementById('viewMode').style.display = 'none';
+            document.getElementById('editMode').classList.add('visible');
+        }
+
+        function cancelEdit() {
+            document.getElementById('viewMode').style.display = 'block';
+            document.getElementById('editMode').classList.remove('visible');
+        }
+
+        async function doUpdate() {
+            const breakdownTimeInput = document.getElementById('inT').value;
+
+            const record = {
+                numberPlate: document.getElementById('rP').textContent,
+                carModel: document.getElementById('inM').value,
+                issue: document.getElementById('inI').value,
+                location: document.getElementById('inL').value,
+                status: document.getElementById('inS').value,
+                // Use the entered time if provided, otherwise fall back to now
+                breakdownTime: breakdownTimeInput
+                    ? new Date(breakdownTimeInput).toISOString()
+                    : new Date().toISOString()
+            };
+
+            try {
+                const res = await fetch('/api/recovery', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(record)
+                });
+
+                if (res.ok) {
+                    showToast('Record updated successfully');
+                    doSearch(); // refresh the view panel with the new values
+                } else {
+                    showToast('Update failed', 'error');
+                }
+            } catch {
+                showToast('Connection error', 'error');
+            }
+        }
+
+        async function doDelete() {
+            const plate = document.getElementById('rP').textContent;
+
+            if (!confirm(`Are you sure you want to delete the record for ${plate}? This cannot be undone.`)) {
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/recovery/' + encodeURIComponent(plate), {
+                    method: 'DELETE'
+                });
+
+                if (res.ok) {
+                    showToast('Record deleted');
+                    document.getElementById('resultCard').classList.remove('visible');
+                    document.getElementById('sPlate').value = '';
+                    loadStats(); // update the dashboard counts
+                } else {
+                    showToast('Delete failed', 'error');
+                }
+            } catch {
+                showToast('Connection error', 'error');
+            }
+        }
+
+
+        // -------------------------------------------------------
+        // Register new breakdown
+        // -------------------------------------------------------
+
+        async function doAdd() {
+            const plate = document.getElementById('p').value.trim();
+
+            if (!plate) {
+                showToast('Number plate is required', 'error');
+                return;
+            }
+
+            const breakdownTimeInput = document.getElementById('t').value;
+
+            const record = {
+                numberPlate: plate,
+                carModel: document.getElementById('m').value,
+                issue: document.getElementById('i').value,
+                location: document.getElementById('l').value,
+                status: document.getElementById('newStatus').value,
+                // Default to now if the user didn't pick a time
+                breakdownTime: breakdownTimeInput
+                    ? new Date(breakdownTimeInput).toISOString()
+                    : new Date().toISOString()
+            };
+
+            try {
+                const res = await fetch('/api/recovery', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(record)
+                });
+
+                if (res.ok) {
+                    showToast('Breakdown registered successfully');
+
+                    // Clear the form ready for the next entry
+                    ['p', 'm', 'i', 'l'].forEach(id => { document.getElementById(id).value = ''; });
+                    document.getElementById('t').value = '';
+                    document.getElementById('newStatus').value = 'Pending';
+
+                    loadStats(); // refresh the dashboard
+                } else {
+                    showToast('Failed to register breakdown', 'error');
+                }
+            } catch {
+                showToast('Connection error', 'error');
+            }
+        }
+
     </script>
 </body>
 </html>
