@@ -1,35 +1,31 @@
-using System;
+using CST2550;
 
-namespace CST2550
+var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddControllers();
+
+// Registered as singletons so the same BST and database manager
+// instance is reused across all requests rather than creating a new one each time
+builder.Services.AddSingleton<RecoveryTree>();
+builder.Services.AddSingleton<DatabaseManager>();
+
+var app = builder.Build();
+
+// Run startup tasks before the app starts accepting requests
+using (var scope = app.Services.CreateScope())
 {
-	class Program
-	{
-		static void Main(string[] args)
-		{
-			// Setting up the tree
-			RecoveryTree myTree = new RecoveryTree();
+	var db = scope.ServiceProvider.GetRequiredService<DatabaseManager>();
+	var tree = scope.ServiceProvider.GetRequiredService<RecoveryTree>();
 
-			// Creating some test data to see if it actually works
-			var car1 = new RecoveryRecord("ABC-123", "Tesla");
-			var car2 = new RecoveryRecord("MDX-101", "Mercedes");
-
-			// Try to add them to our custom tree
-			myTree.Add(car1);
-			myTree.Add(car2);
-
-			// Test search
-			var result = myTree.Search("ABC-123");
-			
-			if (result != null)
-			{
-				Console.WriteLine("Car found: " + result);
-			}
-			else
-			{
-				Console.WriteLine("Car not found");
-			}
-			Console.WriteLine("\nPress any key...");
-			Console.ReadKey();
-		}
-	}
+	db.EnsureAuthTableExists();     // create the Users table if it doesn't exist yet
+	db.EnsureCarRecoveriesSchema(); // make sure BreakdownTime is DATETIME2 not just DATE
+	db.LoadFromDatabase(tree);      // load all existing records into the BST
 }
+
+// UseDefaultFiles means the app will serve index.html automatically
+// when someone visits the root URL
+app.UseDefaultFiles();
+app.UseStaticFiles();
+app.MapControllers();
+
+app.Run();
