@@ -1072,6 +1072,14 @@
                     </svg>
                     Dashboard
                 </button>
+                <button class="sidebar-item" id="nav-all" onclick="showView('all')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2" />
+                        <rect x="9" y="3" width="6" height="4" rx="1" />
+                        <path d="M9 12h6M9 16h4" />
+                    </svg>
+                    All breakdowns
+                </button>
                 <button class="sidebar-item" id="nav-search" onclick="showView('search')">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="11" cy="11" r="8" />
@@ -1342,6 +1350,114 @@
                     </div>
                 </div>
 
+                <!-- ================================================
+                     ALL BREAKDOWNS PAGE
+                ================================================ -->
+                <div id="view-all" style="display: none;">
+                    <div class="page-header">
+                        <div>
+                            <div class="page-title">All breakdowns</div>
+                            <div class="page-sub">Every recovery record in the system</div>
+                        </div>
+                    </div>
+
+                    <!-- Sort controls -->
+                    <div class="content-card" style="padding: 16px 24px;">
+                        <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                            <span style="font-size: 13px; font-weight: 600; color: var(--gray-600);">Sort by</span>
+
+                            <select id="sortBy" onchange="onSortByChange()" style="padding: 8px 12px; border: 1.5px solid var(--gray-300); border-radius: 8px; font-size: 13px; font-family: inherit; color: var(--gray-900); outline: none; cursor: pointer;">
+                                <option value="date">Breakdown date</option>
+                                <option value="status">Status</option>
+                            </select>
+
+                            <!-- This second dropdown changes depending on what's selected above:
+                                 date  -> Newest first / Oldest first
+                                 status -> Pending / In Progress / Completed -->
+                            <select id="sortOrder" onchange="loadAllRecords()" style="padding: 8px 12px; border: 1.5px solid var(--gray-300); border-radius: 8px; font-size: 13px; font-family: inherit; color: var(--gray-900); outline: none; cursor: pointer;">
+                                <option value="desc">Newest first</option>
+                                <option value="asc">Oldest first</option>
+                            </select>
+
+                            <span id="recordCount" style="font-size: 13px; color: var(--gray-400); margin-left: auto;"></span>
+                        </div>
+                    </div>
+
+                    <!-- Records table -->
+                    <div class="content-card" style="padding: 0; overflow: hidden;">
+                        <div style="overflow-x: auto;">
+                            <table id="allTable" style="width: 100%; border-collapse: collapse; font-size: 14px;">
+                                <thead>
+                                    <tr style="border-bottom: 2px solid var(--gray-200);">
+                                        <th style="padding: 14px 20px; text-align: left; font-size: 11px; font-weight: 700; color: var(--gray-500); text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap;">Plate</th>
+                                        <th style="padding: 14px 20px; text-align: left; font-size: 11px; font-weight: 700; color: var(--gray-500); text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap;">Model</th>
+                                        <th style="padding: 14px 20px; text-align: left; font-size: 11px; font-weight: 700; color: var(--gray-500); text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap;">Issue</th>
+                                        <th style="padding: 14px 20px; text-align: left; font-size: 11px; font-weight: 700; color: var(--gray-500); text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap;">Location</th>
+                                        <th style="padding: 14px 20px; text-align: left; font-size: 11px; font-weight: 700; color: var(--gray-500); text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap;">Breakdown time</th>
+                                        <th style="padding: 14px 20px; text-align: left; font-size: 11px; font-weight: 700; color: var(--gray-500); text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap;">Status</th>
+                                        <th style="padding: 14px 20px; width: 40px;"></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="allTableBody">
+                                    <tr>
+                                        <td colspan="7" style="padding: 32px; text-align: center; color: var(--gray-400); font-size: 14px;">Loading...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit modal - shown when the pencil icon is clicked in the all breakdowns table -->
+    <div id="editModalOverlay" style="display:none; position:fixed; inset:0; background:rgba(15,23,42,0.5); z-index:500; align-items:center; justify-content:center;">
+        <div style="background:#fff; border-radius:14px; padding:28px; width:100%; max-width:500px; margin:20px;">
+
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px;">
+                <div>
+                    <div style="font-size:17px; font-weight:700; color:var(--gray-900);">Edit record</div>
+                    <div style="font-size:13px; color:var(--gray-400); margin-top:2px;" id="modalPlateSub"></div>
+                </div>
+                <button onclick="closeEditModal()" style="background:transparent; border:none; cursor:pointer; color:var(--gray-400); padding:4px;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12" /></svg>
+                </button>
+            </div>
+
+            <input type="hidden" id="modalPlate">
+
+            <div class="edit-form-grid">
+                <div class="form-field">
+                    <label>Car model</label>
+                    <input id="modalModel">
+                </div>
+                <div class="form-field">
+                    <label>Status</label>
+                    <select id="modalStatus">
+                        <option value="Pending">Pending</option>
+                        <option value="In Progress">In Progress</option>
+                        <option value="Completed">Completed</option>
+                    </select>
+                </div>
+                <div class="form-field full">
+                    <label>Issue description</label>
+                    <input id="modalIssue">
+                </div>
+                <div class="form-field full">
+                    <label>Current location</label>
+                    <input id="modalLocation">
+                </div>
+                <div class="form-field full">
+                    <label>Breakdown time</label>
+                    <input type="datetime-local" id="modalTime">
+                </div>
+            </div>
+
+            <div style="display:flex; gap:10px; margin-top:20px; padding-top:18px; border-top:1px solid var(--gray-100);">
+                <button class="btn btn-success" onclick="saveModalEdit()" style="flex:1;">Save changes</button>
+                <button class="btn btn-ghost" onclick="closeEditModal()">Cancel</button>
             </div>
         </div>
     </div>
@@ -1489,12 +1605,17 @@
 
         // Shows the selected view and highlights the correct sidebar button
         function showView(name) {
-            const views = ['dashboard', 'search', 'register'];
+            const views = ['dashboard', 'search', 'register', 'all'];
 
-            views.forEach(v => {
-                document.getElementById('view-' + v).style.display = v === name ? 'block' : 'none';
+            views.forEach(function (v) {
+                document.getElementById('view-' + v).style.display = (v === name) ? 'block' : 'none';
                 document.getElementById('nav-' + v).classList.toggle('active', v === name);
             });
+
+            // Load the records table whenever the all breakdowns tab is opened
+            if (name === 'all') {
+                loadAllRecords();
+            }
         }
 
 
@@ -1560,17 +1681,22 @@
             const ctx = document.getElementById('breakdownChart').getContext('2d');
 
             chartInstance = new Chart(ctx, {
-                type: 'bar',
+                type: 'line',
                 data: {
                     labels: labels,
                     datasets: [{
                         label: 'Breakdowns',
                         data: values,
-                        backgroundColor: '#dbeafe',
                         borderColor: '#2563eb',
-                        borderWidth: 1.5,
-                        borderRadius: 4,
-                        hoverBackgroundColor: '#2563eb'
+                        borderWidth: 2,
+                        backgroundColor: 'rgba(37, 99, 235, 0.08)',
+                        pointBackgroundColor: '#2563eb',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                        fill: true,
+                        tension: 0.3  // slight curve on the line
                     }]
                 },
                 options: {
@@ -1770,6 +1896,11 @@
                     document.getElementById('resultCard').classList.remove('visible');
                     document.getElementById('sPlate').value = '';
                     loadStats(); // update the dashboard counts
+
+                    // If the all breakdowns tab is open, refresh the table too
+                    if (document.getElementById('view-all').style.display !== 'none') {
+                        loadAllRecords();
+                    }
                 } else {
                     showToast('Delete failed', 'error');
                 }
@@ -1825,6 +1956,156 @@
                     showToast('Failed to register breakdown', 'error');
                 }
             } catch {
+                showToast('Connection error', 'error');
+            }
+        }
+
+
+        // -------------------------------------------------------
+        // All breakdowns tab
+        // -------------------------------------------------------
+
+        // Called when the first dropdown changes - swaps the second dropdown's
+        // options between date order (newest/oldest) and status filter (Pending etc.)
+        function onSortByChange() {
+            const sortBy = document.getElementById('sortBy').value;
+            const orderDrop = document.getElementById('sortOrder');
+
+            if (sortBy === 'status') {
+                orderDrop.innerHTML = `
+            <option value="Pending">Pending</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Completed">Completed</option>`;
+            } else {
+                orderDrop.innerHTML = `
+            <option value="desc">Newest first</option>
+            <option value="asc">Oldest first</option>`;
+            }
+
+            loadAllRecords();
+        }
+
+        // Fetches all records from the API and renders them into the table.
+        // Re-runs whenever the sort dropdowns change.
+        async function loadAllRecords() {
+            const sortBy = document.getElementById('sortBy').value;
+            const sortOrder = document.getElementById('sortOrder').value;
+
+            const tbody = document.getElementById('allTableBody');
+
+            // Show a loading state while we wait for the response
+            tbody.innerHTML = '<tr><td colspan="6" style="padding: 32px; text-align: center; color: var(--gray-400);">Loading...</td></tr>';
+
+            try {
+                const response = await fetch('/api/recovery/all?sort=' + sortBy + '&order=' + encodeURIComponent(sortOrder));
+
+                if (!response.ok) {
+                    tbody.innerHTML = '<tr><td colspan="6" style="padding: 32px; text-align: center; color: var(--red);">Failed to load records.</td></tr>';
+                    return;
+                }
+
+                const records = await response.json();
+
+                // Update the record count label
+                document.getElementById('recordCount').textContent = records.length + ' record' + (records.length !== 1 ? 's' : '');
+
+                if (records.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" style="padding: 32px; text-align: center; color: var(--gray-400);">No records found.</td></tr>';
+                    return;
+                }
+
+                // Build the table rows
+                tbody.innerHTML = records.map(function (record, index) {
+                    const rowBg = index % 2 === 0 ? '' : 'background: var(--gray-50);';
+                    // Escape quotes in data attributes so they don't break the HTML
+                    const safeModel = record.carModel.replace(/"/g, '&quot;');
+                    const safeIssue = record.issue.replace(/"/g, '&quot;');
+                    const safeLocation = record.location.replace(/"/g, '&quot;');
+                    const safeTime = record.breakdownTime ? toDatetimeLocal(record.breakdownTime) : '';
+
+                    return `
+              <tr style="${rowBg} border-bottom: 1px solid var(--gray-100);">
+                <td style="padding: 13px 20px; font-weight: 700; color: var(--navy); font-size: 13px; white-space: nowrap; letter-spacing: 0.03em;">${record.numberPlate}</td>
+                <td style="padding: 13px 20px; color: var(--gray-700);">${record.carModel}</td>
+                <td style="padding: 13px 20px; color: var(--gray-600); max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${record.issue}</td>
+                <td style="padding: 13px 20px; color: var(--gray-600); white-space: nowrap;">${record.location}</td>
+                <td style="padding: 13px 20px; color: var(--gray-600); white-space: nowrap;">${formatDate(record.breakdownTime)}</td>
+                <td style="padding: 13px 20px;"><span class="${getStatusPillClass(record.status)}">${record.status}</span></td>
+                <td style="padding: 13px 16px; text-align: center;">
+                  <button
+                    onclick="openEditModal('${record.numberPlate}', '${safeModel}', '${safeIssue}', '${safeLocation}', '${safeTime}', '${record.status}')"
+                    title="Edit record"
+                    style="background:transparent; border:none; cursor:pointer; color:var(--gray-300); padding:4px; border-radius:6px; display:inline-flex; align-items:center; justify-content:center; transition:color 0.15s, background 0.15s;"
+                    onmouseover="this.style.color='var(--blue)'; this.style.background='var(--blue-light)';"
+                    onmouseout="this.style.color='var(--gray-300)'; this.style.background='transparent';">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                    </svg>
+                  </button>
+                </td>
+              </tr>`;
+                }).join('');
+
+            } catch (err) {
+                tbody.innerHTML = '<tr><td colspan="6" style="padding: 32px; text-align: center; color: var(--red);">Connection error.</td></tr>';
+            }
+        }
+
+        // -------------------------------------------------------
+        // Edit modal (All Breakdowns tab)
+        // -------------------------------------------------------
+
+        function openEditModal(plate, model, issue, location, time, status) {
+            document.getElementById('modalPlate').value = plate;
+            document.getElementById('modalPlateSub').textContent = plate;
+            document.getElementById('modalModel').value = model;
+            document.getElementById('modalIssue').value = issue;
+            document.getElementById('modalLocation').value = location;
+            document.getElementById('modalTime').value = time;
+            document.getElementById('modalStatus').value = status;
+
+            const overlay = document.getElementById('editModalOverlay');
+            overlay.style.display = 'flex';
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModalOverlay').style.display = 'none';
+        }
+
+        // Close the modal if the user clicks on the dark overlay outside the card
+        document.getElementById('editModalOverlay').addEventListener('click', function (e) {
+            if (e.target === this) closeEditModal();
+        });
+
+        async function saveModalEdit() {
+            const enteredTime = document.getElementById('modalTime').value;
+
+            const record = {
+                numberPlate: document.getElementById('modalPlate').value,
+                carModel: document.getElementById('modalModel').value,
+                issue: document.getElementById('modalIssue').value,
+                location: document.getElementById('modalLocation').value,
+                status: document.getElementById('modalStatus').value,
+                breakdownTime: enteredTime ? new Date(enteredTime).toISOString() : new Date().toISOString()
+            };
+
+            try {
+                const response = await fetch('/api/recovery', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(record)
+                });
+
+                if (response.ok) {
+                    showToast('Record updated successfully');
+                    closeEditModal();
+                    loadAllRecords(); // refresh the table so the change shows immediately
+                    loadStats();      // keep dashboard counts in sync
+                } else {
+                    showToast('Update failed', 'error');
+                }
+            } catch (err) {
                 showToast('Connection error', 'error');
             }
         }
