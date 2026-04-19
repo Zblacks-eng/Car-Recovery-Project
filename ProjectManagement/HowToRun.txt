@@ -1,94 +1,153 @@
 # CST2550 — Car Recovery Management System
 ### How to Run the Program
-
-Hi, this is the setup guide for our CST2550 coursework project. We have tried to make this as straightforward as possible — just follow the steps below and it should run fine on your machine.
-
+ 
+Hi, this is the setup guide for our CST2550 coursework project. The application
+sets up its own database automatically so you should not need SSMS at all.
+ 
 ---
-
+ 
 ## What you need before starting
-
-Please make sure you have the following installed before trying to run the project:
-
-- **Visual Studio 2022**
-- **SQL Server Express / LocalDB**
-- **SQL Server Management Studio (SSMS)**
-
+ 
+- Visual Studio 2022
+- .NET 10 SDK
+- SQL Server Express / LocalDB
+ 
+That is all. SSMS is not required.
+ 
 ---
-
+ 
 ## Step 1 — Get the project files
-
-Clone or download the repository from GitHub. If you're downloading as a ZIP, just extract it somewhere on your computer. The folder structure should look like this once extracted:
-
-```
-CST2550/
-├── Controllers/
-│   ├── AuthController.cs
-│   └── RecoveryController.cs
-├── wwwroot/
-│   └── index.html
-├── AuthRecord.cs
-├── BreakdownStats.cs
-├── DatabaseManager.cs
-├── Node.cs
-├── Program.cs
-├── RecoveryRecord.cs
-├── RecoveryTree.cs
-├── CST2550.csproj
-├── seed_data.sql
-└── extra_breakdowns.sql
-```
-
+ 
+Clone or download the repository from GitHub. If downloading as a ZIP, extract it
+somewhere on your computer. The folder structure should look like this:
+ 
+    CST2550/
+    ├── Controllers/
+    │   ├── AuthController.cs
+    │   └── RecoveryController.cs
+    ├── wwwroot/
+    │   └── index.html
+    ├── AuthRecord.cs
+    ├── BreakdownStats.cs
+    ├── DatabaseManager.cs
+    ├── Node.cs
+    ├── Program.cs
+    ├── RecoveryRecord.cs
+    ├── RecoveryTree.cs
+    ├── CST2550.csproj
+    └── SQLQuery2.sql
+ 
 ---
-
-## Step 2 — Set up the database
-
-This is the most important step. The program won't work without a database set up first.
-
-1. Open **SQL Server Management Studio (SSMS)**
-2. Connect to `(localdb)\MSSQLLocalDB` using **Windows Authentication**
-3. Go to **File → Open → File** and open `SQLQuery2.sql` from the project folder
-4. Press **F5** or click **Execute** — this will create the database and insert 300+ sample records
-
-After running the script you should see `CarRecoveryDB` appear under **Databases** in SSMS on the left panel.
-
+ 
+## Step 2 — Open the project
+ 
+1. Open Visual Studio 2022
+2. Click "Open a project or solution"
+3. Find the project folder and open CST2550.csproj
+4. Wait for Visual Studio to finish restoring NuGet packages
+   (you will see a progress bar at the bottom — wait for it to finish)
+ 
+If you see an error about missing packages, open the Package Manager Console
+(Tools → NuGet Package Manager → Package Manager Console) and run:
+ 
+    dotnet restore
+ 
 ---
-
-## Step 3 — Open the project
-
-1. Open **Visual Studio 2022**
-2. Click **Open a project or solution**
-3. Find the project folder and open **CST2550.csproj**
-
+ 
+## Step 3 — Run it
+ 
+Press F5 or click the green Run button.
+ 
+The application will automatically:
+- Create the CarRecoveryDB database if it does not exist
+- Create the CarRecoveries and Users tables if they do not exist
+- Load any existing records into the Binary Search Tree
+ 
+Once it starts, open your browser and go to:
+ 
+    http://localhost:5050
+ 
+Note: if port 5050 is taken on your machine, change the port number in Program.cs:
+ 
+    builder.WebHost.UseUrls("http://localhost:5050");
+ 
+Change 5050 to any unused port (e.g. 5100, 5200) and try again.
+ 
 ---
-
-## Step 4 — Run it
-
-Press **F5** or click the green **Run** button. Visual Studio will build the project and a browser window should open automatically.
-
-If the browser doesn't open on its own, go to `https://localhost:5001` or `http://localhost:5000` manually.
-
-> **Note:** The first time you run it, there are no user accounts in the database yet. Click **Create account** on the login page and register with any username and password (password needs to be at least 6 characters). Then sign back in.
-
+ 
+## Step 4 — Create an account and log in
+ 
+The first time you run it there are no user accounts yet. On the login page:
+ 
+1. Click "Create account"
+2. Enter any username, full name, and password
+   (password must be at least 6 characters)
+3. Sign back in with the account you just created
+ 
+The dashboard will load and you are ready to use the system.
+ 
 ---
-
+ 
+## Step 5 — Add data (optional)
+ 
+The dashboard will show dashes until there are records in the database.
+You can either:
+ 
+- Click "New breakdown" on the left sidebar and add records manually, or
+- Run SQLQuery2.sql in SSMS to insert 7 sample vehicle records all at once
+ 
+---
+ 
+## Troubleshooting
+ 
+Problem: "You must install or update .NET to run this application"
+Fix: The error message will list which .NET versions are installed on the machine.
+     Open CST2550.csproj and change the TargetFramework line to match one of them.
+     Example: <TargetFramework>net10.0</TargetFramework>
+ 
+Problem: "address already in use" error on startup
+Fix: Another program is using the default port. Open Program.cs and change the
+     port in this line:
+     builder.WebHost.UseUrls("http://localhost:5050");
+     Try 5100 or 5200 instead.
+ 
+Problem: Assets file not found / NuGet error on build
+Fix: Open Package Manager Console and run: dotnet restore
+     Then rebuild the project.
+ 
+Problem: Browser shows 404 after the app starts
+Fix: Make sure wwwroot/index.html exists in the project folder. Also check that
+     the bin/Debug/net10.0/ folder contains a wwwroot folder with index.html in it.
+     If not, the csproj needs this inside a <ItemGroup>:
+     <Content Update="wwwroot\**">
+       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+     </Content>
+ 
+Problem: Dashboard loads but shows dashes with no data
+Fix: This is normal on first run. Add records via the New breakdown page or
+     run SQLQuery2.sql in SSMS.
+ 
+---
+ 
 ## Quick overview of the files
-
-I've included this in case you want to look through the code:
-
-| File | What it does |
-|---|---|
-| `Program.cs` | Entry point — sets up the app and loads data into the BST at startup |
-| `RecoveryTree.cs` | My custom Binary Search Tree, sorted by number plate |
-| `Node.cs` | A single node in the BST |
-| `RecoveryRecord.cs` | The model class for a breakdown record |
-| `DatabaseManager.cs` | Handles all the SQL queries — reading, writing, updating, deleting |
-| `AuthRecord.cs` | Models for user accounts, login and register requests |
-| `BreakdownStats.cs` | Model for the stats shown on the dashboard |
-| `Controllers/RecoveryController.cs` | API endpoints for breakdown records (search, add, update, delete, stats) |
-| `Controllers/AuthController.cs` | API endpoints for login and registration |
-| `wwwroot/index.html` | The entire frontend — login page, dashboard, search, all breakdowns tab |
-| `SQLQuery2.sql` | Creates the table and inserts 300+ sample records |
-
+ 
+    File                              What it does
+    -----------------------------------------------------------------------
+    Program.cs                        Entry point — sets up the app, creates
+                                      the database and tables, loads the BST
+    RecoveryTree.cs                   Custom Binary Search Tree sorted by plate
+    Node.cs                           A single node in the BST
+    RecoveryRecord.cs                 Model class for a breakdown record
+    DatabaseManager.cs                All SQL queries — read, write, update,
+                                      delete, schema and database setup
+    AuthRecord.cs                     Models for user accounts and auth
+    BreakdownStats.cs                 Model for the dashboard stats
+    Controllers/RecoveryController.cs API endpoints for breakdown records
+    Controllers/AuthController.cs     API endpoints for login and registration
+    wwwroot/index.html                The entire frontend — login, dashboard,
+                                      search, register, all breakdowns
+    SQLQuery2.sql                     Optional — inserts 7 sample records
+ 
 ---
-
+ 
 Thanks for taking the time to run it.
