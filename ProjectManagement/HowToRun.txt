@@ -1,26 +1,26 @@
 # CST2550 — Car Recovery Management System
 ### How to Run the Program
- 
+
 Hi, this is the setup guide for our CST2550 coursework project. The application
 sets up its own database automatically so you should not need SSMS at all.
- 
+
 ---
- 
+
 ## What you need before starting
- 
+
 - Visual Studio 2022
 - .NET 10 SDK
 - SQL Server Express / LocalDB
- 
+
 That is all. SSMS is not required.
- 
+
 ---
- 
+
 ## Step 1 — Get the project files
- 
+
 Clone or download the repository from GitHub. If downloading as a ZIP, extract it
 somewhere on your computer. The folder structure should look like this:
- 
+
     CST2550/
     ├── Controllers/
     │   ├── AuthController.cs
@@ -36,85 +36,89 @@ somewhere on your computer. The folder structure should look like this:
     ├── RecoveryTree.cs
     ├── CST2550.csproj
     └── SQLQuery2.sql
- 
+
 ---
- 
+
 ## Step 2 — Open the project
- 
+
 1. Open Visual Studio 2022
 2. Click "Open a project or solution"
 3. Find the project folder and open CST2550.csproj
 4. Wait for Visual Studio to finish restoring NuGet packages
    (you will see a progress bar at the bottom — wait for it to finish)
- 
-If you see an error about missing packages, open the Package Manager Console
-(Tools → NuGet Package Manager → Package Manager Console) and run:
- 
+
+If you see an error about missing packages, open Command Prompt, navigate to
+the folder containing CST2550.csproj first, then run restore:
+
+    cd "C:\path\to\your\SourceCode"
     dotnet restore
- 
+
+Make sure the path points to the folder containing CST2550.csproj — if you are
+not in the right folder, dotnet restore will fail with a "no project file found" error.
+
 ---
- 
+
 ## Step 3 — Run it
- 
+
 Press F5 or click the green Run button.
- 
+
 The application will automatically:
 - Create the CarRecoveryDB database if it does not exist
 - Create the CarRecoveries and Users tables if they do not exist
 - Load any existing records into the Binary Search Tree
- 
+
 Once it starts, open your browser and go to:
- 
+
     http://localhost:5050
- 
+
 Note: if port 5050 is taken on your machine, change the port number in Program.cs:
- 
+
     builder.WebHost.UseUrls("http://localhost:5050");
- 
+
 Change 5050 to any unused port (e.g. 5100, 5200) and try again.
- 
+
 ---
- 
+
 ## Step 4 — Create an account and log in
- 
+
 The first time you run it there are no user accounts yet. On the login page:
- 
+
 1. Click "Create account"
 2. Enter any username, full name, and password
    (password must be at least 6 characters)
 3. Sign back in with the account you just created
- 
+
 The dashboard will load and you are ready to use the system.
- 
+
 ---
- 
+
 ## Step 5 — Add data (optional)
- 
+
 The dashboard will show dashes until there are records in the database.
 You can either:
- 
+
 - Click "New breakdown" on the left sidebar and add records manually, or
 - Run SQLQuery2.sql in SSMS to insert 7 sample vehicle records all at once
- 
+
 ---
- 
+
 ## Troubleshooting
- 
+
 Problem: "You must install or update .NET to run this application"
 Fix: The error message will list which .NET versions are installed on the machine.
      Open CST2550.csproj and change the TargetFramework line to match one of them.
      Example: <TargetFramework>net10.0</TargetFramework>
- 
+
 Problem: "address already in use" error on startup
 Fix: Another program is using the default port. Open Program.cs and change the
      port in this line:
      builder.WebHost.UseUrls("http://localhost:5050");
      Try 5100 or 5200 instead.
- 
+
 Problem: Assets file not found / NuGet error on build
 Fix: Open Package Manager Console and run: dotnet restore
      Then rebuild the project.
- 
+
 Problem: Browser shows 404 after the app starts
 Fix: Make sure wwwroot/index.html exists in the project folder. Also check that
      the bin/Debug/net10.0/ folder contains a wwwroot folder with index.html in it.
@@ -122,15 +126,15 @@ Fix: Make sure wwwroot/index.html exists in the project folder. Also check that
      <Content Update="wwwroot\**">
        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
      </Content>
- 
+
 Problem: Dashboard loads but shows dashes with no data
 Fix: This is normal on first run. Add records via the New breakdown page or
      run SQLQuery2.sql in SSMS.
- 
+
 ---
- 
+
 ## Quick overview of the files
- 
+
     File                              What it does
     -----------------------------------------------------------------------
     Program.cs                        Entry point — sets up the app, creates
@@ -147,7 +151,7 @@ Fix: This is normal on first run. Add records via the New breakdown page or
     wwwroot/index.html                The entire frontend — login, dashboard,
                                       search, register, all breakdowns
     SQLQuery2.sql                     Optional — inserts 7 sample records
- 
+
 ---
- 
+
 Thanks for taking the time to run it.
