@@ -15,6 +15,19 @@ namespace CST2550
 
 		// --- Schema setup (runs once on startup) ----------------------------
 
+		// Creates CarRecoveryDB if it doesn't already exist.
+		// Connects to master first (which always exists on any SQL Server install)
+		// then creates our database from there. This means the app works on a
+		// fresh machine without needing to set anything up in SSMS manually.
+		public void EnsureDatabaseExists()
+		{
+			string masterConn = @"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=master;Integrated Security=True;TrustServerCertificate=True";
+			using SqlConnection conn = new SqlConnection(masterConn);
+			conn.Open();
+			string sql = "IF NOT EXISTS (SELECT name FROM sys.databases WHERE name = 'CarRecoveryDB') CREATE DATABASE CarRecoveryDB";
+			new SqlCommand(sql, conn).ExecuteNonQuery();
+		}
+
 		// Makes sure the Users table exists with all the right columns.
 		// I also handle the case where the table already exists from a previous
 		// version that didn't have the FullName or Role columns.
