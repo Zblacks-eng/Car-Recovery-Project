@@ -2,6 +2,8 @@ using CST2550;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.WebHost.UseUrls("http://localhost:5050");
+
 builder.Services.AddControllers();
 
 // Registered as singletons so the same BST and database manager
@@ -18,7 +20,8 @@ using (var scope = app.Services.CreateScope())
 	var tree = scope.ServiceProvider.GetRequiredService<RecoveryTree>();
 
 	db.EnsureDatabaseExists();      // create CarRecoveryDB if it doesn't exist yet
-	db.EnsureAuthTableExists();     // create the Users table if it doesn't exist yet
+    db.EnsureCarRecoveriesTableExists();
+    db.EnsureAuthTableExists();     // create the Users table if it doesn't exist yet
 	db.EnsureCarRecoveriesSchema(); // make sure BreakdownTime is DATETIME2 not just DATE
 	db.LoadFromDatabase(tree);      // load all existing records into the BST
 }
