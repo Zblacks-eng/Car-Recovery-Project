@@ -27,11 +27,27 @@ namespace CST2550
 			string sql = "IF NOT EXISTS (SELECT name FROM sys.databases WHERE name = 'CarRecoveryDB') CREATE DATABASE CarRecoveryDB";
 			new SqlCommand(sql, conn).ExecuteNonQuery();
 		}
+        public void EnsureCarRecoveriesTableExists()
+        {
+            using SqlConnection conn = new SqlConnection(connectionString);
+            conn.Open();
+            string sql = @"
+        IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='CarRecoveries' AND xtype='U')
+        CREATE TABLE CarRecoveries (
+            NumberPlate   VARCHAR(15)  NOT NULL PRIMARY KEY,
+            CarModel      VARCHAR(50)  NOT NULL,
+            Issue         TEXT,
+            Location      VARCHAR(255) NOT NULL,
+            BreakdownTime DATETIME2    NOT NULL DEFAULT GETDATE(),
+            Status        VARCHAR(20)  NOT NULL DEFAULT 'Pending'
+        )";
+            new SqlCommand(sql, conn).ExecuteNonQuery();
+        }
 
-		// Makes sure the Users table exists with all the right columns.
-		// I also handle the case where the table already exists from a previous
-		// version that didn't have the FullName or Role columns.
-		public void EnsureAuthTableExists()
+        // Makes sure the Users table exists with all the right columns.
+        // I also handle the case where the table already exists from a previous
+        // version that didn't have the FullName or Role columns.
+        public void EnsureAuthTableExists()
 		{
 			using SqlConnection conn = new SqlConnection(connectionString);
 			conn.Open();
